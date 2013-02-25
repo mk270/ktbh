@@ -2,3 +2,4 @@ supervisor
 pika
 requests
 lxml
+cssselect
