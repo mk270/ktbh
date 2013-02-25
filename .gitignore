@@ -1,3 +1,4 @@
 pyenv/
 *~
 *.pyc
+etc/ktbh.conf
