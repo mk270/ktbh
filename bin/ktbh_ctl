@@ -5,8 +5,18 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir))
 import ktbh
 from optparse import OptionParser
+import ConfigParser
 
-if __name__ == '__main__':
+def get_config():
+    config_file = os.path.join(os.path.dirname(__file__), 
+			       os.path.pardir,
+			       "etc", "ktbh.conf")
+    config = ConfigParser.ConfigParser()
+    config.read(config_file)
+    return config
+
+def run():
+    config = get_config()
     parser = OptionParser()
 
     options, args = parser.parse_args()
@@ -14,5 +24,12 @@ if __name__ == '__main__':
     assert len(args) >= 1
     
     if args[0] == "addlp":
-	    url = args[1]
-	    ktbh.add_landing_page(url)
+        url = args[1]
+        ktbh.add_landing_page(url, config)
+        return
+
+    if args[0] == "examine_lps":
+        ktbh.examine_landing_pages(config)
+
+if __name__ == '__main__':
+    run()
