@@ -35,8 +35,8 @@ def get_connection(host):
     sys.exit(1)
 
 def handle_queue(amqp_host, queue_name, callback_fn):
+    connection = get_connection(amqp_host)
     try:
-        connection = get_connection(amqp_host)
         channel = connection.channel()
         channel.queue_declare(queue=queue_name, durable=True)
         channel.basic_qos(prefetch_count=1)
