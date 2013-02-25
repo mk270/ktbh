@@ -46,4 +46,8 @@ def scrape(url):
     if len(links) > 0:
         return csv_text_links(root)
 
-    raise StopIteration
+    def none():
+        if False:
+            yield ("","")
+
+    return none()
