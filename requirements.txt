@@ -1,2 +1,4 @@
 supervisor
 pika
+requests
+lxml
