@@ -1,5 +1,5 @@
 supervisor
-pika
+pika==0.9.8
 requests
 lxml
 cssselect
