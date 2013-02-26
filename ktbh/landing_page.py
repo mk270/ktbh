@@ -25,6 +25,10 @@ def csv_text_links(root):
         if "csv" in text.lower():
             yield (text, href)
 
+def none(root):
+    if False:
+        yield ("","")
+
 def scrape(url):
     url = url.strip()
     try:
@@ -38,16 +42,11 @@ def scrape(url):
     except ValueError:
         return None
 
-    links = [ l for l in csv_links(root) ]
-    if len(links) > 0:
-        return csv_links(root)
+    scrape_schemes = [ csv_links, csv_text_links ]
 
-    links = [ l for l in csv_text_links(root) ]
-    if len(links) > 0:
-        return csv_text_links(root)
+    for ss in scrape_schemes:
+        links = [ l for l in ss(root) ]
+        if len(links) > 0:
+            return ss(root)
 
-    def none():
-        if False:
-            yield ("","")
-
-    return none()
+    return none(root)
