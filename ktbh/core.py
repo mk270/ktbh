@@ -88,7 +88,7 @@ class KTBH(object):
         self.router.hand_off_json(self.out_queue, payload)
 
     def examine_landing_pages(self):
-        def callback(ch, method, properties, body):
+        def callback(body):
             try:
                 args = json.loads(body)
                 if "url" not in args:
@@ -100,15 +100,15 @@ class KTBH(object):
                         "link_text": text,
                         "link_href": href
                         }
-                    self.router.hand_off_json(self.url_queue, payload)
+                    yield (self.url_queue, payload)
                     count += 1
                 if count == 0:
-                    self.router.hand_off_json(self.broken_queue, {"url": url})
+                    yield (self.broken_queue, {"url": url})
             except:
-                self.router.hand_off_json(self.broken_queue, {"url": url})
-            finally:
-                ch.basic_ack(delivery_tag = method.delivery_tag)
+                yield (self.broken_queue, {"url": url})
 
+        errors_queue = "errors"
+        cb = self.router.create_handler(callback, errors_queue)
         self.router.handle_queue_forever(self.out_queue, callback)
     
     def stash_unscrapables(self):
