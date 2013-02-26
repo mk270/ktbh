@@ -32,7 +32,7 @@ class KTBH(object):
         self.out_queue = config.get("main", "lp_queue")
         self.broken_queue = config.get("main", "broken_lp_queue")
         self.url_queue = config.get("main", "url_queue")
-        self.database_name = config.get("database": "name")
+        self.database_name = config.get("database", "name")
 
     def hand_off(self, queue, args):
         body = json.dumps(args)
