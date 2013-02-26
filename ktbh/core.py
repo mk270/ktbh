@@ -107,20 +107,18 @@ class KTBH(object):
     
     def stash_unscrapables(self):
         def handle_unscrapable(body, errors_queue):
-            try:
-                args = json.loads(body)
-                url = args["url"]
-                sql = "insert into unscrapable_url (url) values (%(url)s);"
-                sql2 = "select url from unscrapable_url where url = %(url)s;"
-
-                db = psycopg2.connect(database=self.database_name)
-                c = db.cursor()
-                c.execute(sql2, { "url": url })
-                if c.rowcount == 0:
-                    c.execute(sql, { "url": url })
-                    db.commit()
-                    return None
-                return None
+            args = json.loads(body)
+            url = args["url"]
+            sql = "insert into unscrapable_url (url) values (%(url)s);"
+            sql2 = "select url from unscrapable_url where url = %(url)s;"
+            
+            db = psycopg2.connect(database=self.database_name)
+            c = db.cursor()
+            c.execute(sql2, { "url": url })
+            if c.rowcount == 0:
+                c.execute(sql, { "url": url })
+                db.commit()
+            return None
 
         errors_queue = "errors"
         cb = make_callback(handle_scrapable, errors_queue)
