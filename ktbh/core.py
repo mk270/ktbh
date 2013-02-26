@@ -9,6 +9,7 @@ class KTBH(object):
     def __init__(self, config):
         self.config = config
         self.amqp_host = config.get("main", "amqp_host")
+        self.out_queue = config.get("main", "lp_queue")
 
     def hand_off(self, out_queue, body):
         connection = pika.BlockingConnection(
@@ -22,12 +23,10 @@ class KTBH(object):
         connection.close()
 
     def add_landing_page(self, url):
-        out_queue = self.config.get("main", "lp_queue")
-
         payload = json.dumps({
                 "url": url
                 })
-        self.hand_off(out_queue, payload)
+        self.hand_off(self.out_queue, payload)
 
     def get_connection(self, host):
         count = 0.4
@@ -55,7 +54,6 @@ class KTBH(object):
             connection.close()
 
     def examine_landing_pages(self):
-        out_queue = self.config.get("main", "lp_queue")
         url_queue = self.config.get("main", "url_queue")
         broken_queue = self.config.get("main", "broken_lp_queue")
 
@@ -77,7 +75,7 @@ class KTBH(object):
                 ch.basic_ack(delivery_tag = method.delivery_tag)
 
         while True:
-            self.handle_queue(out_queue, callback)
+            self.handle_queue(self.out_queue, callback)
     
     def stash_unscrapables(self):
         broken_queue = self.config.get("main", "broken_lp_queue")
