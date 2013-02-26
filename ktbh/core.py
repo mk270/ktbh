@@ -55,6 +55,10 @@ class KTBH(object):
         finally:
             connection.close()
 
+    def handle_queue_forever(self, queue_name, callback_fn):
+        while True:
+            self.handle_queue(queue_name, callback_fn)
+
     def examine_landing_pages(self):
         def callback(ch, method, properties, body):
             try:
@@ -73,8 +77,7 @@ class KTBH(object):
             finally:
                 ch.basic_ack(delivery_tag = method.delivery_tag)
 
-        while True:
-            self.handle_queue(self.out_queue, callback)
+        self.handle_queue_forever(self.out_queue, callback)
     
     def stash_unscrapables(self):
         def callback(ch, method, properties, body):
@@ -96,5 +99,4 @@ class KTBH(object):
             except:
                 print sys.exc_info()
 
-        while True:
-            self.handle_queue(self.broken_queue, callback)
+        self.handle_queue_forever(self.broken_queue, callback)
