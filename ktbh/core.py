@@ -22,7 +22,6 @@ class KTBH(object):
         connection.close()
 
     def add_landing_page(self, url):
-        amqp_host = self.config.get("main", "amqp_host")
         out_queue = self.config.get("main", "lp_queue")
 
         payload = json.dumps({
@@ -42,8 +41,8 @@ class KTBH(object):
                 count *= 1.7
         sys.exit(1)
 
-    def handle_queue(self, amqp_host, queue_name, callback_fn):
-        connection = self.get_connection(amqp_host)
+    def handle_queue(self, queue_name, callback_fn):
+        connection = self.get_connection(self.amqp_host)
         try:
             channel = connection.channel()
             channel.queue_declare(queue=queue_name, durable=True)
@@ -59,7 +58,6 @@ class KTBH(object):
         out_queue = self.config.get("main", "lp_queue")
         url_queue = self.config.get("main", "url_queue")
         broken_queue = self.config.get("main", "broken_lp_queue")
-        amqp_host = self.config.get("main", "amqp_host")
 
         def callback(ch, method, properties, body):
             try:
@@ -79,11 +77,10 @@ class KTBH(object):
                 ch.basic_ack(delivery_tag = method.delivery_tag)
 
         while True:
-            self.handle_queue(amqp_host, out_queue, callback)
+            self.handle_queue(out_queue, callback)
     
     def stash_unscrapables(self):
         broken_queue = self.config.get("main", "broken_lp_queue")
-        amqp_host = self.config.get("main", "amqp_host")
 
         def callback(ch, method, properties, body):
             try:
@@ -105,4 +102,4 @@ class KTBH(object):
                 print sys.exc_info()
 
         while True:
-            self.handle_queue(amqp_host, broken_queue, callback)
+            self.handle_queue(broken_queue, callback)
