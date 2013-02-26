@@ -5,14 +5,13 @@ import pika
 import json
 import landing_page
 
-database_name = "ktbh" # to be moved into self.config
-
 class KTBH(object):
     def __init__(self, config):
         self.amqp_host = config.get("main", "amqp_host")
         self.out_queue = config.get("main", "lp_queue")
         self.broken_queue = config.get("main", "broken_lp_queue")
         self.url_queue = config.get("main", "url_queue")
+        self.database_name = config.get("database": "name")
 
     def hand_off(self, queue, args):
         body = json.dumps(args)
@@ -93,7 +92,7 @@ class KTBH(object):
                 sql = "insert into unscrapable_url (url) values (%(url)s);"
                 sql2 = "select url from unscrapable_url where url = %(url)s;"
 
-                db = psycopg2.connect(database=database_name)
+                db = psycopg2.connect(database=self.database_name)
                 c = db.cursor()
                 c.execute(sql2, { "url": url })
                 if c.rowcount == 0:

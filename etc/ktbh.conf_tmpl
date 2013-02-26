@@ -3,3 +3,6 @@ amqp_host: localhost
 lp_queue: ktbh_landing_pages
 broken_lp_queue: ktbh_unhandled_landing_pages
 url_queue: ktbh_file
+
+[database]
+name: ktbh
