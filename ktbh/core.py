@@ -52,7 +52,7 @@ class PipeRouter(object):
         while True:
             self.handle_queue(queue_name, callback_fn)
 
-    def make_callback(self, f, errors_queue):
+    def create_handler(self, f, errors_queue):
         def callback(ch, method, properties, body):
             try:
                 result = f(body)
@@ -127,5 +127,5 @@ class KTBH(object):
             return None
 
         errors_queue = "errors"
-        cb = self.router.make_callback(handle_unscrapable, errors_queue)
+        cb = self.router.create_handler(handle_unscrapable, errors_queue)
         self.router.handle_queue_forever(self.broken_queue, cb)
