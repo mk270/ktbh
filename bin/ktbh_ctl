@@ -30,6 +30,11 @@ def run():
 
     if args[0] == "examine_lps":
         ktbh.examine_landing_pages(config)
+        return
+
+    if args[0] == "stash_unscrapables":
+        ktbh.stash_unscrapables(config)
+        return
 
 if __name__ == '__main__':
     run()

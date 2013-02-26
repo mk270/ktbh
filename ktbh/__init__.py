@@ -1,5 +1,6 @@
 import sys
 import time
+import psycopg2
 import pika
 import json
 import landing_page
@@ -75,3 +76,28 @@ def examine_landing_pages(config):
     while True:
         handle_queue(amqp_host, out_queue, callback)
     
+def stash_unscrapables(config):
+    broken_queue = config.get("main", "broken_lp_queue")
+    amqp_host = config.get("main", "amqp_host")
+
+    def callback(ch, method, properties, body):
+        try:
+            args = json.loads(body)
+            url = args["url"]
+            sql = "insert into unscrapable_url (url) values (%(url)s);"
+            sql2 = "select url from unscrapable_url where url = %(url)s;"
+
+            db = psycopg2.connect(database="ktbh")
+            c = db.cursor()
+            c.execute(sql2, { "url": url })
+            if c.rowcount > 0:
+                ch.basic_ack(delivery_tag = method.delivery_tag)
+                return
+            c.execute(sql, { "url": url })
+            db.commit()
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+        except:
+            print sys.exc_info()
+
+    while True:
+        handle_queue(amqp_host, broken_queue, callback)
