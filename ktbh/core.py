@@ -7,10 +7,10 @@ import landing_page
 
 class KTBH(object):
     def __init__(self, config):
-        self.config = config
         self.amqp_host = config.get("main", "amqp_host")
         self.out_queue = config.get("main", "lp_queue")
         self.broken_queue = config.get("main", "broken_lp_queue")
+        self.url_queue = config.get("main", "url_queue")
 
     def hand_off(self, queue, body):
         connection = pika.BlockingConnection(
@@ -55,8 +55,6 @@ class KTBH(object):
             connection.close()
 
     def examine_landing_pages(self):
-        url_queue = self.config.get("main", "url_queue")
-
         def callback(ch, method, properties, body):
             try:
                 args = json.loads(body)
@@ -67,7 +65,7 @@ class KTBH(object):
                             "link_text": text,
                             "link_href": href
                             })
-                    self.hand_off(url_queue, payload)
+                    self.hand_off(self.url_queue, payload)
                     count += 1
                 if count == 0:
                     self.hand_off(self.broken_queue, json.dumps({"url": url}))
