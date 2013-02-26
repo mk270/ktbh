@@ -73,6 +73,10 @@ class PipeRouter(object):
                 ch.basic_ack(delivery_tag = method.delivery_tag)
         return callback
 
+    def route(self, callback=None, input_queue=None, error_queue=None):
+        cb = self.create_handler(callback, error_queue)
+        self.handle_queue_forever(input_queue, cb)
+
 class KTBH(object):
     def __init__(self, config):
         self.router = PipeRouter(config.get("main", "amqp_host"))
@@ -108,8 +112,9 @@ class KTBH(object):
                 yield (self.broken_queue, {"url": url})
 
         errors_queue = "errors"
-        cb = self.router.create_handler(callback, errors_queue)
-        self.router.handle_queue_forever(self.out_queue, callback)
+        self.router.route(callback=callback,
+                          input_queue=self.out_queue,
+                          error_queue=errors_queue)
     
     def stash_unscrapables(self):
         def handle_unscrapable(body):
@@ -127,5 +132,7 @@ class KTBH(object):
             return []
 
         errors_queue = "errors"
-        cb = self.router.create_handler(handle_unscrapable, errors_queue)
-        self.router.handle_queue_forever(self.broken_queue, cb)
+        self.router.route(callback=handle_unscrapable,
+                          input_queue=self.broken_queue,
+                          error_queue=errors_queue)
+
