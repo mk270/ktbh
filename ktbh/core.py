@@ -8,10 +8,11 @@ import landing_page
 class KTBH(object):
     def __init__(self, config):
         self.config = config
+        self.amqp_host = config.get("main", "amqp_host")
 
-    def hand_off(self, amqp_host, out_queue, body):
+    def hand_off(self, out_queue, body):
         connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host=amqp_host))
+            pika.ConnectionParameters(host=self.amqp_host))
         channel = connection.channel()
         channel.queue_declare(queue=out_queue, durable=True)
         channel.basic_publish(exchange='',
@@ -27,7 +28,7 @@ class KTBH(object):
         payload = json.dumps({
                 "url": url
                 })
-        self.hand_off(amqp_host, out_queue, payload)
+        self.hand_off(out_queue, payload)
 
     def get_connection(self, host):
         count = 0.4
@@ -70,10 +71,10 @@ class KTBH(object):
                             "link_text": text,
                             "link_href": href
                             })
-                    self.hand_off(amqp_host, url_queue, payload)
+                    self.hand_off(url_queue, payload)
                     count += 1
                 if count == 0:
-                    self.hand_off(amqp_host, broken_queue, json.dumps({"url": url}))
+                    self.hand_off(broken_queue, json.dumps({"url": url}))
             finally:
                 ch.basic_ack(delivery_tag = method.delivery_tag)
 
