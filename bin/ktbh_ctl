@@ -19,22 +19,28 @@ def run():
     config = get_config()
     parser = OptionParser()
 
-    options, args = parser.parse_args()
+    parser.add_option("--add-lp", dest="add_landing_page",
+                      help="Add a landing page URL")
+    parser.add_option("--examine-lps", dest="examine_lps",
+                      action="store_true",
+                      help="Process landing pages")
+    parser.add_option("--stash-unscrapables", dest="stash_unscrapables",
+                      action="store_true",
+                      help="Save unscrapable URLs")
 
-    assert len(args) >= 1
+    options, args = parser.parse_args()
 
     driver = ktbh.KTBH(config)
     
-    if args[0] == "addlp":
-        url = args[1]
-        driver.add_landing_page(url)
+    if options.add_landing_page:
+        driver.add_landing_page(options.add_landing_page)
         return
 
-    if args[0] == "examine_lps":
+    if options.examine_lps:
         driver.examine_landing_pages()
         return
 
-    if args[0] == "stash_unscrapables":
+    if options.stash_unscrapables:
         driver.stash_unscrapables()
         return
 
