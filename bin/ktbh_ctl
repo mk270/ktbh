@@ -22,18 +22,20 @@ def run():
     options, args = parser.parse_args()
 
     assert len(args) >= 1
+
+    driver = ktbh.KTBH(config)
     
     if args[0] == "addlp":
         url = args[1]
-        ktbh.add_landing_page(url, config)
+        driver.add_landing_page(url)
         return
 
     if args[0] == "examine_lps":
-        ktbh.examine_landing_pages(config)
+        driver.examine_landing_pages()
         return
 
     if args[0] == "stash_unscrapables":
-        ktbh.stash_unscrapables(config)
+        driver.stash_unscrapables()
         return
 
 if __name__ == '__main__':
