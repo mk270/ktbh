@@ -9,26 +9,30 @@ class PipeRouter(object):
     def __init__(self, amqp_host):
         self.amqp_host = amqp_host
 
+    def stop(self):
+        self.connection.close()
+        
     def hand_off_json(self, queue, args):
         return self.hand_off(queue, json.dumps(args))
 
     def hand_off(self, queue, body):
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host=self.amqp_host))
-        channel = connection.channel()
-        channel.queue_declare(queue=queue, durable=True)
-        channel.basic_publish(exchange='',
-                              routing_key=queue,
-                              body=body,
-                              properties=pika.BasicProperties(delivery_mode=2))
-        connection.close()
+        connection = self.get_connection()
+        try:
+            channel = connection.channel()
+            channel.queue_declare(queue=queue, durable=True)
+            channel.basic_publish(exchange='',
+                                  routing_key=queue,
+                                  body=body,
+                                  properties=pika.BasicProperties(delivery_mode=2))
+        finally:
+            connection.close()
 
-    def get_connection(self, host):
+    def get_connection(self):
         count = 0.4
         while count < 60:
             try:            
                 connection = pika.BlockingConnection(
-                    pika.ConnectionParameters(host=host))
+                    pika.ConnectionParameters(host=self.amqp_host))
                 return connection
             except:
                 time.sleep(count)
@@ -36,7 +40,7 @@ class PipeRouter(object):
         raise NoConnection
 
     def handle_queue(self, queue_name, callback_fn):
-        connection = self.get_connection(self.amqp_host)
+        connection = self.get_connection()
         try:
             channel = connection.channel()
             channel.queue_declare(queue=queue_name, durable=True)
@@ -44,7 +48,7 @@ class PipeRouter(object):
             channel.basic_consume(callback_fn, queue=queue_name)
             channel.start_consuming()
         except:
-            pass
+            print sys.exc_info()
         finally:
             connection.close()
 
@@ -59,18 +63,19 @@ class PipeRouter(object):
             except:
                 error_msg = {
                     "error": {
-                        "type": sys.exc_info()[0],
-                        "err_str": sys.exc_info()[1],
+                        "type": str(sys.exc_info()[0]),
+                        "err_str": str(sys.exc_info()[1]),
                         "orig_body": body
                         }
                     }
                 results = [ (errors_queue, error_msg) ]
+            ch.basic_ack(delivery_tag = method.delivery_tag)
             try:
                 for r in results:
                     queue, msg = r
                     self.hand_off_json(queue, msg)
             finally:
-                ch.basic_ack(delivery_tag = method.delivery_tag)
+                pass
         return callback
 
     def route(self, callback=None, input_queue=None, error_queue=None):
