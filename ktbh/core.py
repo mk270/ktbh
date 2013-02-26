@@ -12,7 +12,8 @@ class KTBH(object):
         self.broken_queue = config.get("main", "broken_lp_queue")
         self.url_queue = config.get("main", "url_queue")
 
-    def hand_off(self, queue, body):
+    def hand_off(self, queue, args):
+        body = json.dumps(args)
         connection = pika.BlockingConnection(
             pika.ConnectionParameters(host=self.amqp_host))
         channel = connection.channel()
@@ -24,9 +25,9 @@ class KTBH(object):
         connection.close()
 
     def add_landing_page(self, url):
-        payload = json.dumps({
-                "url": url
-                })
+        payload = {
+            "url": url
+            }
         self.hand_off(self.out_queue, payload)
 
     def get_connection(self, host):
@@ -61,14 +62,14 @@ class KTBH(object):
                 url = args["url"]
                 count = 0
                 for text, href in landing_page.scrape(url):
-                    payload = json.dumps({
-                            "link_text": text,
-                            "link_href": href
-                            })
+                    payload = {
+                        "link_text": text,
+                        "link_href": href
+                        }
                     self.hand_off(self.url_queue, payload)
                     count += 1
                 if count == 0:
-                    self.hand_off(self.broken_queue, json.dumps({"url": url}))
+                    self.hand_off(self.broken_queue, {"url": url})
             finally:
                 ch.basic_ack(delivery_tag = method.delivery_tag)
 
