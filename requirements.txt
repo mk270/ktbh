@@ -4,3 +4,5 @@ requests
 lxml
 cssselect
 psycopg2
+nose
+csvddf
