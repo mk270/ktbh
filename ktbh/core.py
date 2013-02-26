@@ -11,13 +11,13 @@ class KTBH(object):
         self.amqp_host = config.get("main", "amqp_host")
         self.out_queue = config.get("main", "lp_queue")
 
-    def hand_off(self, out_queue, body):
+    def hand_off(self, queue, body):
         connection = pika.BlockingConnection(
             pika.ConnectionParameters(host=self.amqp_host))
         channel = connection.channel()
-        channel.queue_declare(queue=out_queue, durable=True)
+        channel.queue_declare(queue=queue, durable=True)
         channel.basic_publish(exchange='',
-                              routing_key=out_queue,
+                              routing_key=queue,
                               body=body,
                               properties=pika.BasicProperties(delivery_mode=2))
         connection.close()
