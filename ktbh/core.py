@@ -55,7 +55,7 @@ class PipeRouter(object):
     def create_handler(self, f, errors_queue):
         def callback(ch, method, properties, body):
             try:
-                result = f(body)
+                results = f(body)
             except:
                 error_msg = {
                     "error": {
@@ -64,10 +64,10 @@ class PipeRouter(object):
                         "orig_body": body
                         }
                     }
-                result = (errors_queue, error_msg)
+                results = [ (errors_queue, error_msg) ]
             try:
-                if result is not None:
-                    queue, msg = result
+                for r in results:
+                    queue, msg = r
                     self.hand_off_json(queue, msg)
             finally:
                 ch.basic_ack(delivery_tag = method.delivery_tag)
@@ -124,7 +124,7 @@ class KTBH(object):
             if c.rowcount == 0:
                 c.execute(sql, { "url": url })
                 db.commit()
-            return None
+            return []
 
         errors_queue = "errors"
         cb = self.router.create_handler(handle_unscrapable, errors_queue)
