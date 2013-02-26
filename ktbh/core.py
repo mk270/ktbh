@@ -65,6 +65,8 @@ class KTBH(object):
         def callback(ch, method, properties, body):
             try:
                 args = json.loads(body)
+                if "url" not in args:
+                    return
                 url = args["url"]
                 count = 0
                 for text, href in landing_page.scrape(url):
@@ -76,6 +78,8 @@ class KTBH(object):
                     count += 1
                 if count == 0:
                     self.hand_off(self.broken_queue, {"url": url})
+            except:
+                self.hand_off(self.broken_queue, {"url": url})
             finally:
                 ch.basic_ack(delivery_tag = method.delivery_tag)
 

@@ -4,6 +4,8 @@ import lxml.html
 import requests
 import socket
 
+class ParseUnretrievable(Exception): pass
+
 def link_data(root):
     for a in root.cssselect("a"):
         text = a.text
@@ -34,13 +36,13 @@ def scrape(url):
     try:
         html = requests.get(url, timeout=5.0).text
     except socket.timeout:
-        return None
+        raise ParseUnretrievable
     except requests.exceptions.Timeout:
-        return None
+        raise ParseUnretrievable
     try:
         root = lxml.html.fromstring(html)
     except ValueError:
-        return None
+        raise ParseUnretrievable
 
     scrape_schemes = [ csv_links, csv_text_links ]
 
