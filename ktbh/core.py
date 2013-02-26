@@ -121,5 +121,5 @@ class KTBH(object):
             return None
 
         errors_queue = "errors"
-        cb = make_callback(handle_scrapable, errors_queue)
+        cb = make_callback(handle_unscrapable, errors_queue)
         self.handle_queue_forever(self.broken_queue, cb)
