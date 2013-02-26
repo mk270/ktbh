@@ -5,6 +5,27 @@ import pika
 import json
 import landing_page
 
+def make_callback(f, errors_queue):
+    def callback(ch, method, properties, body):
+        try:
+            result = f(body)
+        except:
+            error_msg = {
+                "error": {
+                    "type": sys.exc_info()[0],
+                    "err_str": sys.exc_info()[1],
+                    "orig_body": body
+                    }
+                }
+            result = (errors_queue, error_msg)
+        try:
+            if result is not None:
+                queue, msg = result
+                self.hand_off(queue, msg)
+        finally:
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+    return callback
+
 class KTBH(object):
     def __init__(self, config):
         self.amqp_host = config.get("main", "amqp_host")
@@ -85,7 +106,7 @@ class KTBH(object):
         self.handle_queue_forever(self.out_queue, callback)
     
     def stash_unscrapables(self):
-        def callback(ch, method, properties, body):
+        def handle_unscrapable(body, errors_queue):
             try:
                 args = json.loads(body)
                 url = args["url"]
@@ -98,8 +119,9 @@ class KTBH(object):
                 if c.rowcount == 0:
                     c.execute(sql, { "url": url })
                     db.commit()
-                ch.basic_ack(delivery_tag = method.delivery_tag)
-            except:
-                print sys.exc_info()
+                    return None
+                return None
 
-        self.handle_queue_forever(self.broken_queue, callback)
+        errors_queue = "errors"
+        cb = make_callback(handle_scrapable, errors_queue)
+        self.handle_queue_forever(self.broken_queue, cb)
