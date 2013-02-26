@@ -106,7 +106,7 @@ class KTBH(object):
         self.handle_queue_forever(self.out_queue, callback)
     
     def stash_unscrapables(self):
-        def handle_unscrapable(body, errors_queue):
+        def handle_unscrapable(body):
             args = json.loads(body)
             url = args["url"]
             sql = "insert into unscrapable_url (url) values (%(url)s);"
