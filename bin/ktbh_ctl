@@ -27,6 +27,9 @@ def run():
     parser.add_option("--stash-unscrapables", dest="stash_unscrapables",
                       action="store_true",
                       help="Save unscrapable URLs")
+    parser.add_option("--infer-dialect", dest="infer_dialect",
+                      action="store_true",
+                      help="Infer CSV dialects")
 
     options, args = parser.parse_args()
 
@@ -42,6 +45,10 @@ def run():
 
     if options.stash_unscrapables:
         driver.stash_unscrapables()
+        return
+
+    if options.infer_dialect:
+        driver.infer_dialect()
         return
 
 if __name__ == '__main__':
