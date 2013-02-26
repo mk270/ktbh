@@ -5,37 +5,14 @@ import pika
 import json
 import landing_page
 
-def make_callback(f, errors_queue):
-    def callback(ch, method, properties, body):
-        try:
-            result = f(body)
-        except:
-            error_msg = {
-                "error": {
-                    "type": sys.exc_info()[0],
-                    "err_str": sys.exc_info()[1],
-                    "orig_body": body
-                    }
-                }
-            result = (errors_queue, error_msg)
-        try:
-            if result is not None:
-                queue, msg = result
-                self.hand_off(queue, msg)
-        finally:
-            ch.basic_ack(delivery_tag = method.delivery_tag)
-    return callback
+class PipeRouter(object):
+    def __init__(self, amqp_host):
+        self.amqp_host = amqp_host
 
-class KTBH(object):
-    def __init__(self, config):
-        self.amqp_host = config.get("main", "amqp_host")
-        self.out_queue = config.get("main", "lp_queue")
-        self.broken_queue = config.get("main", "broken_lp_queue")
-        self.url_queue = config.get("main", "url_queue")
-        self.database_name = config.get("database", "name")
+    def hand_off_json(self, queue, args):
+        return self.hand_off(queue, json.dumps(args))
 
-    def hand_off(self, queue, args):
-        body = json.dumps(args)
+    def hand_off(self, queue, body):
         connection = pika.BlockingConnection(
             pika.ConnectionParameters(host=self.amqp_host))
         channel = connection.channel()
@@ -45,12 +22,6 @@ class KTBH(object):
                               body=body,
                               properties=pika.BasicProperties(delivery_mode=2))
         connection.close()
-
-    def add_landing_page(self, url):
-        payload = {
-            "url": url
-            }
-        self.hand_off(self.out_queue, payload)
 
     def get_connection(self, host):
         count = 0.4
@@ -81,6 +52,41 @@ class KTBH(object):
         while True:
             self.handle_queue(queue_name, callback_fn)
 
+    def make_callback(self, f, errors_queue):
+        def callback(ch, method, properties, body):
+            try:
+                result = f(body)
+            except:
+                error_msg = {
+                    "error": {
+                        "type": sys.exc_info()[0],
+                        "err_str": sys.exc_info()[1],
+                        "orig_body": body
+                        }
+                    }
+                result = (errors_queue, error_msg)
+            try:
+                if result is not None:
+                    queue, msg = result
+                    self.hand_off_json(queue, msg)
+            finally:
+                ch.basic_ack(delivery_tag = method.delivery_tag)
+        return callback
+
+class KTBH(object):
+    def __init__(self, config):
+        self.router = PipeRouter(config.get("main", "amqp_host"))
+        self.out_queue = config.get("main", "lp_queue")
+        self.broken_queue = config.get("main", "broken_lp_queue")
+        self.url_queue = config.get("main", "url_queue")
+        self.database_name = config.get("database", "name")
+
+    def add_landing_page(self, url):
+        payload = {
+            "url": url
+            }
+        self.router.hand_off_json(self.out_queue, payload)
+
     def examine_landing_pages(self):
         def callback(ch, method, properties, body):
             try:
@@ -94,16 +100,16 @@ class KTBH(object):
                         "link_text": text,
                         "link_href": href
                         }
-                    self.hand_off(self.url_queue, payload)
+                    self.router.hand_off_json(self.url_queue, payload)
                     count += 1
                 if count == 0:
-                    self.hand_off(self.broken_queue, {"url": url})
+                    self.router.hand_off_json(self.broken_queue, {"url": url})
             except:
-                self.hand_off(self.broken_queue, {"url": url})
+                self.router.hand_off_json(self.broken_queue, {"url": url})
             finally:
                 ch.basic_ack(delivery_tag = method.delivery_tag)
 
-        self.handle_queue_forever(self.out_queue, callback)
+        self.router.handle_queue_forever(self.out_queue, callback)
     
     def stash_unscrapables(self):
         def handle_unscrapable(body):
@@ -121,5 +127,5 @@ class KTBH(object):
             return None
 
         errors_queue = "errors"
-        cb = make_callback(handle_unscrapable, errors_queue)
-        self.handle_queue_forever(self.broken_queue, cb)
+        cb = self.router.make_callback(handle_unscrapable, errors_queue)
+        self.router.handle_queue_forever(self.broken_queue, cb)
