@@ -28,21 +28,25 @@ class KTBH(object):
             try:
                 args = json.loads(body)
                 if "url" not in args:
-                    return
+                    return []
                 url = args["url"]
                 count = 0
-                for text, href in landing_page.scrape(url):
+
+                def collect_links(text, href):
                     new_url = urlparse.urljoin(url, href)
                     payload = {
                         "link_text": text,
                         "link_href": new_url
                         }
                     yield (self.url_queue, payload)
-                    count += 1
-                if count == 0:
-                    yield (self.broken_queue, {"url": url})
+                    
+                results = [ collect_links(text, href) 
+                            for text, href in landing_page.scrape(url) ]
+                if len(results) > 0:
+                    return results
             except:
-                yield (self.broken_queue, {"url": url})
+                pass
+            return [ (self.broken_queue, {"url": url}) ]
 
         errors_queue = "errors"
         self.router.route(callback=callback,
