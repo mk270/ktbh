@@ -6,3 +6,4 @@ cssselect
 psycopg2
 nose
 csvddf
+json-table-schema
