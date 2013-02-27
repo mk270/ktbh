@@ -40,7 +40,7 @@ class KTBH(object):
                         "link_text": text,
                         "link_href": new_url
                         }
-                    yield (self.url_queue, payload)
+                    return (self.url_queue, payload)
                     
                 results = [ collect_links(text, href) 
                             for text, href in landing_page.scrape(url) ]
