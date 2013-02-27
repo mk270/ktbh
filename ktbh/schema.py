@@ -27,14 +27,20 @@ def censor(dialect):
     [ tmp.pop(i) for i in censored ]
     return tmp
 
-def infer_schema(data, dialect):
+def sabotage(d):
+    [ d.__setitem__(k, d[k].encode('utf-8')) for k in d
+      if isinstance(d[k], unicode) ]
+
+def infer_schema(data, _dialect):
     f = StringIO(data)
 
-    d = unicodecsv.reader(f, **dialect)
+    sabotage(_dialect)
+    d = unicodecsv.reader(f, dialect=None, **_dialect)
+        
     field_names = d.next()
     f.seek(0)
 
-    dialect = censor(dialect)
+    dialect = censor(_dialect)
     
     t = messytables.CSVTableSet(f, **dialect).tables[0]
     sample = itertools.islice(t, 0, 9)
