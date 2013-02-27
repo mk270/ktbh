@@ -8,3 +8,5 @@ nose
 csvddf
 json-table-schema
 unicodecsv
+messytables
+slugify
