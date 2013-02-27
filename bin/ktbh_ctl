@@ -30,6 +30,9 @@ def run():
     parser.add_option("--infer-dialect", dest="infer_dialect",
                       action="store_true",
                       help="Infer CSV dialects")
+    parser.add_option("--infer-schema", dest="infer_schema",
+                      action="store_true",
+                      help="Infer CSV schema")
 
     options, args = parser.parse_args()
 
@@ -49,6 +52,10 @@ def run():
 
     if options.infer_dialect:
         driver.infer_dialect()
+        return
+
+    if options.infer_schema:
+        driver.infer_schema()
         return
 
 if __name__ == '__main__':
