@@ -81,7 +81,7 @@ class KTBH(object):
             d = csv.Sniffer().sniff(data, delimiters=['\t', ','])
             dialect = csvddf.CSVDDF(dialect=d)
             return [ (self.schema_queue, { "url": url,
-                                           "csvddf": dialect.as_json()
+                                           "csvddf": dialect.as_dict()
                                            }) ]
 
         errors_queue = "errors"
