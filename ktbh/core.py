@@ -12,18 +12,23 @@ import schema
 class KTBH(object):
     def __init__(self, config):
         self.router = waterfall.PipeRouter(config.get("main", "amqp_host"))
-        self.out_queue = config.get("main", "lp_queue")
-        self.broken_queue = config.get("main", "broken_lp_queue")
-        self.url_queue = config.get("main", "url_queue")
         self.database_name = config.get("database", "name")
-        self.schema_queue = config.get("main", "schema_queue")
-        self.download_queue = config.get("main", "download_queue")
+
+        self.queues = {}
+        for q_name, conf_section, conf_item in [
+            ("out", "main", "lp_queue"),
+            ("broken", "main", "broken_lp_queue"),
+            ("url", "main", "url_queue"),
+            ("schema", "main", "schema_queue"),
+            ("download", "main", "download_queue")
+            ]:
+            self.queues[q_name] = config.get(conf_section, conf_item)
         
     def add_landing_page(self, url):
         payload = {
             "url": url
             }
-        self.router.hand_off_json(self.out_queue, payload)
+        self.router.hand_off_json(self.queues["out"], payload)
 
     def examine_landing_pages(self):
         def callback(body):
@@ -40,7 +45,7 @@ class KTBH(object):
                         "link_text": text,
                         "link_href": new_url
                         }
-                    return (self.url_queue, payload)
+                    return (self.queues["url"], payload)
                     
                 results = [ collect_links(text, href) 
                             for text, href in landing_page.scrape(url) ]
@@ -48,11 +53,11 @@ class KTBH(object):
                     return results
             except:
                 pass
-            return [ (self.broken_queue, {"url": url}) ]
+            return [ (self.queues["broken"], {"url": url}) ]
 
         errors_queue = "errors"
         self.router.route(callback=callback,
-                          input_queue=self.out_queue,
+                          input_queue=self.queues["out"],
                           error_queue=errors_queue)
     
     def stash_unscrapables(self):
@@ -72,7 +77,7 @@ class KTBH(object):
 
         errors_queue = "errors"
         self.router.route(callback=handle_unscrapable,
-                          input_queue=self.broken_queue,
+                          input_queue=self.queues["broken"],
                           error_queue=errors_queue)
 
     def preview(self, url):
@@ -90,13 +95,13 @@ class KTBH(object):
             
             d = unicodecsv.Sniffer().sniff(data, delimiters=['\t', ','])
             dialect = csvddf.CSVDDF(dialect=d)
-            return [ (self.schema_queue, { "url": url,
-                                           "csvddf": dialect.as_dict()
-                                           }) ]
+            return [ (self.queues["schema"], { "url": url,
+                                               "csvddf": dialect.as_dict()
+                                               }) ]
 
         errors_queue = "errors"
         self.router.route(callback=callback,
-                          input_queue=self.url_queue,
+                          input_queue=self.queues["url"],
                           error_queue=errors_queue)
 
     def infer_schema(self):
@@ -107,9 +112,9 @@ class KTBH(object):
             args["schema"] = schema.infer_schema(data, 
                                                  args["csvddf"]["dialect"])
 
-            return [ (self.download_queue, args) ]
+            return [ (self.queues["download"], args) ]
 
         errors_queue = "errors"
         self.router.route(callback=callback,
-                          input_queue=self.schema_queue,
+                          input_queue=self.queues["schema"],
                           error_queue=errors_queue)
