@@ -23,7 +23,7 @@ class KTBH(object):
             ("download", "main", "download_queue")
             ]:
             self.queues[q_name] = config.get(conf_section, conf_item)
-            self.queues["error"] = "errors"
+        self.queues["error"] = "errors"
 
     def add_landing_page(self, url):
         payload = {
@@ -56,10 +56,9 @@ class KTBH(object):
                 pass
             return [ (self.queues["broken"], {"url": url}) ]
 
-        errors_queue = "errors"
         self.router.route(callback=callback,
                           input_queue=self.queues["out"],
-                          error_queue=errors_queue)
+                          error_queue=self.queues["error"])
     
     def stash_unscrapables(self):
         def handle_unscrapable(body):
@@ -76,10 +75,9 @@ class KTBH(object):
                 db.commit()
             return []
 
-        errors_queue = "errors"
         self.router.route(callback=handle_unscrapable,
                           input_queue=self.queues["broken"],
-                          error_queue=errors_queue)
+                          error_queue=self.queues["error"])
 
     def preview(self, url):
         preview_size = 10000
@@ -100,10 +98,9 @@ class KTBH(object):
                                                "csvddf": dialect.as_dict()
                                                }) ]
 
-        errors_queue = "errors"
         self.router.route(callback=callback,
                           input_queue=self.queues["url"],
-                          error_queue=errors_queue)
+                          error_queue=self.queues["error"])
 
     def infer_schema(self):
         def callback(body):
@@ -115,7 +112,6 @@ class KTBH(object):
 
             return [ (self.queues["download"], args) ]
 
-        errors_queue = "errors"
         self.router.route(callback=callback,
                           input_queue=self.queues["schema"],
-                          error_queue=errors_queue)
+                          error_queue=self.queues["error"])
