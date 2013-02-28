@@ -23,7 +23,8 @@ class KTBH(object):
             ("download", "main", "download_queue")
             ]:
             self.queues[q_name] = config.get(conf_section, conf_item)
-        
+            self.queues["error"] = "errors"
+
     def add_landing_page(self, url):
         payload = {
             "url": url
