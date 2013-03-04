@@ -48,15 +48,19 @@ def run():
         return
 
     if options.stash_unscrapables:
-        driver.stash_unscrapables()
+        database_name = config.get("database", "name")
+        cb = ktbh.unscrapable.handle_unscrapable_callback(database_name)
+        driver.run_pipe("broken", cb)
         return
 
     if options.infer_dialect:
-        driver.infer_dialect()
+        cb = ktbh.csv_metadata.infer_dialects_callback
+        driver.run_pipe("url", cb)
         return
 
     if options.infer_schema:
-        driver.infer_schema()
+        cb = ktbh.csv_metadata.infer_schema_callback
+        driver.run_pipe("schema", cb)
         return
 
 if __name__ == '__main__':
