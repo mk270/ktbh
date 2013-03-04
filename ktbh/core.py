@@ -1,12 +1,10 @@
 import sys
 import psycopg2
 import json
-import landing_page
 import waterfall
 import requests
 import unicodecsv
 import csvddf
-import urlparse
 import schema
 
 class KTBH(object):
@@ -31,35 +29,6 @@ class KTBH(object):
             }
         self.router.hand_off_json(self.queues["out"], payload)
 
-    def examine_landing_pages(self):
-        def callback(body):
-            try:
-                args = json.loads(body)
-                if "url" not in args:
-                    return []
-                url = args["url"]
-                count = 0
-
-                def collect_links(text, href):
-                    new_url = urlparse.urljoin(url, href)
-                    payload = {
-                        "link_text": text,
-                        "link_href": new_url
-                        }
-                    return (self.queues["url"], payload)
-                    
-                results = [ collect_links(text, href) 
-                            for text, href in landing_page.scrape(url) ]
-                if len(results) > 0:
-                    return results
-            except:
-                pass
-            return [ (self.queues["broken"], {"url": url}) ]
-
-        self.router.route(callback=callback,
-                          input_queue=self.queues["out"],
-                          error_queue=self.queues["error"])
-    
     def stash_unscrapables(self):
         def handle_unscrapable(body):
             args = json.loads(body)
@@ -114,4 +83,14 @@ class KTBH(object):
 
         self.router.route(callback=callback,
                           input_queue=self.queues["schema"],
+                          error_queue=self.queues["error"])
+
+    def wrap_callback(self, callback):
+        def _callback(body):
+            return [ (self.queues[q], msg) for q, msg in callback(body) ]
+        return _callback
+
+    def run_pipe(self, input_queue, callback):
+        self.router.route(callback=self.wrap_callback(callback),
+                          input_queue=self.queues[input_queue],
                           error_queue=self.queues["error"])

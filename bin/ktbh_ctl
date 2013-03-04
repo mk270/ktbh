@@ -43,7 +43,8 @@ def run():
         return
 
     if options.examine_lps:
-        driver.examine_landing_pages()
+        cb = ktbh.landing_page.examine_landing_page_callback
+        driver.run_pipe("out", cb)
         return
 
     if options.stash_unscrapables:

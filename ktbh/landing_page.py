@@ -3,6 +3,8 @@ import sys
 import lxml.html           
 import requests
 import socket
+import json
+import urlparse
 
 class ParseUnretrievable(Exception): pass
 
@@ -52,3 +54,28 @@ def scrape(url):
             return ss(root)
 
     return none(root)
+
+def examine_landing_page_callback(body):
+    try:
+        args = json.loads(body)
+        if "url" not in args:
+            return []
+
+        url = args["url"]
+        count = 0
+
+        def collect_links(text, href):
+            new_url = urlparse.urljoin(url, href)
+            payload = {
+                "link_text": text,
+                "link_href": new_url
+                }
+            return ("url", payload)
+
+        results = [ collect_links(text, href) 
+                    for text, href in scrape(url) ]
+        if len(results) > 0:
+            return results
+    except:
+        pass
+    return [ ("broken", {"body": body}) ]
