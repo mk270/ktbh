@@ -3,7 +3,10 @@
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir))
-import ktbh
+import ktbh.core
+import ktbh.landing_page
+import ktbh.unscrapable
+import ktbh.csv_metadata
 from optparse import OptionParser
 import ConfigParser
 
@@ -36,7 +39,7 @@ def run():
 
     options, args = parser.parse_args()
 
-    driver = ktbh.KTBH(config)
+    driver = ktbh.core.KTBH(config)
     
     if options.add_landing_page:
         driver.add_landing_page(options.add_landing_page)
