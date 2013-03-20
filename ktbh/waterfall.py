@@ -14,9 +14,12 @@ class PipeRouter(object):
         
     def delete_queue(self, queue):
         connection = self.get_connection()
-        channel = connection.channel()
-        channel.queue_delete(queue=queue)
-        connection.close()
+        try:
+            channel = connection.channel()
+            channel.queue_delete(queue=queue)
+            connection.close()
+        except:
+            pass
 
     def hand_off_json(self, queue, args):
         return self.hand_off(queue, json.dumps(args))
