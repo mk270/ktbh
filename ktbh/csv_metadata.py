@@ -27,7 +27,7 @@ def infer_schema_callback(body):
     args = json.loads(body)
 
     data = preview(args["url"])
-    args["schema"] = schema.infer_schema(data, 
-                                         args["csvddf"]["dialect"])
+    args["schema"] = json.loads(schema.infer_schema(data, 
+                                         args["csvddf"]["dialect"]))
 
     return [ ("download", args) ]
