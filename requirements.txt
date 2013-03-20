@@ -10,3 +10,4 @@ json-table-schema
 unicodecsv
 messytables
 slugify
+messytables-jts
