@@ -6,7 +6,7 @@ import slugify
 import jsontableschema
 
 from messytables.types import *
-from messytables_jts import rowset_as_schema
+from messytables_jts import celltype_as_string
 
 def censor(dialect):
     tmp = dict(dialect)
@@ -25,7 +25,7 @@ def sabotage(d):
 
 def get_type_of_column(col):
     try:
-        return rowset_as_schema(col)
+        return celltype_as_string(col)
     except:
         return "any"
 
@@ -44,7 +44,7 @@ def infer_schema(data, _dialect):
     sample = itertools.islice(t, 0, 9)
     types = messytables.type_guess(sample)
 
-    json_table_schema_types = map(get_type_of_column(t),
+    json_table_schema_types = map(get_type_of_column,
                                   types)
 
     slugs = [ slugify.slugify(i) for i in field_names ]
