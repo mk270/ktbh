@@ -36,11 +36,18 @@ def run():
     parser.add_option("--infer-schema", dest="infer_schema",
                       action="store_true",
                       help="Infer CSV schema")
+    parser.add_option("--reset-database", dest="reset_database",
+                      action="store_true",
+                      help="Reset databases")
 
     options, args = parser.parse_args()
 
     driver = ktbh.core.KTBH(config)
     
+    if options.reset_database:
+        driver.delete_all_queues()
+        return
+
     if options.add_landing_page:
         driver.add_landing_page(options.add_landing_page)
         return

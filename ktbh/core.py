@@ -15,6 +15,10 @@ class KTBH(object):
             self.queues[q_name] = config.get(conf_section, conf_item)
         self.queues["error"] = "errors"
 
+    def delete_all_queues(self):
+        for q in self.queues.values():
+            self.router.delete_queue(q)
+
     def add_landing_page(self, url):
         payload = {
             "url": url
