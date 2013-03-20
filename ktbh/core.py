@@ -13,7 +13,7 @@ class KTBH(object):
             ("download", "main", "download_queue")
             ]:
             self.queues[q_name] = config.get(conf_section, conf_item)
-        self.queues["error"] = "errors"
+        self.queues["error"] = "ktbh_errors"
 
     def delete_all_queues(self):
         for q in self.queues.values():
