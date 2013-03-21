@@ -7,6 +7,8 @@ import ktbh.core
 import ktbh.landing_page
 import ktbh.unscrapable
 import ktbh.csv_metadata
+import ktbh.modelling
+
 from optparse import OptionParser
 import ConfigParser
 
@@ -39,6 +41,9 @@ def run():
     parser.add_option("--reset-database", dest="reset_database",
                       action="store_true",
                       help="Reset databases")
+    parser.add_option("--infer-model", dest="infer_model",
+                      action="store_true",
+                      help="Infer model")
 
     options, args = parser.parse_args()
 
@@ -71,6 +76,11 @@ def run():
     if options.infer_schema:
         cb = ktbh.csv_metadata.infer_schema_callback
         driver.run_pipe("schema", cb)
+        return
+
+    if options.infer_model:
+        cb = ktbh.modelling.infer_model_callback
+        driver.run_pipe("download", cb)
         return
 
 if __name__ == '__main__':

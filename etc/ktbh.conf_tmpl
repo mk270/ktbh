@@ -5,6 +5,7 @@ broken_lp_queue: ktbh_unhandled_landing_pages
 url_queue: ktbh_file
 schema_queue: ktbh_schema
 download_queue: ktbh_download
+import_queue: ktbh_import
 
 [database]
 name: ktbh
