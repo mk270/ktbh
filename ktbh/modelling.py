@@ -19,7 +19,7 @@ def make_model(amount_field, date_field, fields):
         "label": label
         }
 
-    def dimension(name, dim_type, data_type):
+    def dimension(name, column_id, dim_type, data_type):
         assert dim_type in ["date", "attribute", "measure"]
         assert data_type in ["float", "string", "date"]
         return (name, {
@@ -38,12 +38,12 @@ def make_model(amount_field, date_field, fields):
             return "string"
 
     dimensions_list = [
-        dimension(amount_field["id"], "measure", "float"),
-        dimension(date_field["id"], "date", "date"),
+        dimension("amount", amount_field["id"], "measure", "float"),
+        dimension("time", date_field["id"], "date", "date"),
         ]
 
     for f in fields:
-        dim = dimension(f["id"], "measure", as_os_type(f["type"]))
+        dim = dimension(f["id"], f["id"], "attribute", as_os_type(f["type"]))
         dimensions_list.append(dim)
     
     return {

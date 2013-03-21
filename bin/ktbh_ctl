@@ -8,6 +8,7 @@ import ktbh.landing_page
 import ktbh.unscrapable
 import ktbh.csv_metadata
 import ktbh.modelling
+import ktbh.importer
 
 from optparse import OptionParser
 import ConfigParser
@@ -44,6 +45,9 @@ def run():
     parser.add_option("--infer-model", dest="infer_model",
                       action="store_true",
                       help="Infer model")
+    parser.add_option("--importer", dest="importer",
+                      action="store_true",
+                      help="Run importer")
 
     options, args = parser.parse_args()
 
@@ -81,6 +85,11 @@ def run():
     if options.infer_model:
         cb = ktbh.modelling.infer_model_callback
         driver.run_pipe("download", cb)
+        return
+
+    if options.importer:
+        cb = ktbh.importer.import_ds_callback
+        driver.run_pipe("import", cb)
         return
 
 if __name__ == '__main__':
