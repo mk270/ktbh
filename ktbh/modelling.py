@@ -25,7 +25,7 @@ def make_model(amount_field, date_field, fields):
         return (name, {
             "default_value":  "", 
             "description": name.title(), 
-            "column": name, 
+            "column": column_id, 
             "label": name.title(), 
             "datatype": data_type, 
             "type": dim_type
@@ -38,13 +38,23 @@ def make_model(amount_field, date_field, fields):
             return "string"
 
     dimensions_list = [
-        dimension("amount", amount_field["id"], "measure", "float"),
-        dimension("time", date_field["id"], "date", "date"),
+        dimension("amount", amount_field["label"], "measure", "float"),
+        dimension("time", date_field["label"], "date", "date"),
         ]
 
     for f in fields:
-        dim = dimension(f["id"], f["id"], "attribute", as_os_type(f["type"]))
+        dim = dimension(f["id"], f["label"], "attribute", as_os_type(f["type"]))
         dimensions_list.append(dim)
+
+    dimensions_list.append(("unique_rowid",
+                            {"default_value": "", 
+                             "description": "Nonce Row ID", 
+                             "column": "unique_rowid", 
+                             "label": "RowID", 
+                             "datatype": "string", 
+                             "key": True, 
+                             "type": "attribute"
+                             }))
     
     return {
         "dataset": dataset,
