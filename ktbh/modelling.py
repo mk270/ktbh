@@ -3,10 +3,14 @@ import json
 
 class AutoModellingException(Exception): pass
 
-def make_model(amount_field, date_field, fields):
+def timestamp():
+    import time
+    return str(int(time.time()))
+
+def make_model(pubname, pubtitle, amount_field, date_field, fields):
     currency = "GBP"
-    dataset_name = "new-dataset"
-    description = "Dataset description"
+    dataset_name = pubname + "-" + timestamp()
+    description = pubtitle
     label = "Dataset label"
 
     dataset = {
@@ -103,6 +107,8 @@ def infer_model_callback(body):
     other_fields = filter(lambda s: s not in ["number", "date"], types)
 
     model = make_model(
+        args["publisher_name"]["code"],
+        args["publisher_name"]["title"],
         [ f for f in fields if f["type"] == "number"][0], 
         [ f for f in fields if f["type"] == "date" ][0], 
         [ f for f in fields if f["type"] not in ["number", "date"]]
@@ -110,6 +116,21 @@ def infer_model_callback(body):
 
     args["model"] = model
     return [ ("import", args) ]
+
+def infer_date_range_callback(body):
+    args = json.loads(body)
+
+    date_formats = args["date_format"]
+    date_col = model["mapping"]["time"]["column"]
+    fmt = date_formats[date_col]
+
+    import requests
+    r = requests.get(url, stream=True)
+    import unicodecsv
+
+    rd = unicodecsv.DictCursor(r.iter_content(chunk_size=4096))
+    dates = [ row[date_col] for row in rd ]
+    
 
 def validate_model_callback(body):
     import tempfile
