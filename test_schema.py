@@ -7,7 +7,7 @@ import json
 def test_inference():
     data = file('data/generic.csv').read()
     dialect = csvddf.CSVDDF(dialect=unicodecsv.Sniffer().sniff(data)).as_dict()['dialect']
-    sch = ktbh.schema.infer_schema(data, dialect)
+    sch, _ = ktbh.schema.infer_schema(data, dialect)
     sch = json.loads(sch)
     fields = sch['fields']
     
