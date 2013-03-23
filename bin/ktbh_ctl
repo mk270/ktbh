@@ -27,7 +27,13 @@ pipes = [
     ("infer-dialect", "infer_dialect", "Infer CSV dialects",
      "url", ktbh.csv_metadata.infer_dialects_callback),
     ("infer-schema", "infer_schema", "Infer CSV schema",
-     "schema", ktbh.csv_metadata.infer_schema_callback)     
+     "schema", ktbh.csv_metadata.infer_schema_callback),
+    ("infer-model", "infer_model", "Infer model",
+     "download", ktbh.modelling.infer_model_callback),
+    ("validate-model", "validate_model", "Validate model",
+     "import", ktbh.modelling.validate_model_callback),
+    ("importer", "importer", "Run importer",
+     "import", ktbh.importer.import_ds_callback)
 ]
 
 def run():
@@ -42,15 +48,6 @@ def run():
     parser.add_option("--reset-database", dest="reset_database",
                       action="store_true",
                       help="Reset databases")
-    parser.add_option("--infer-model", dest="infer_model",
-                      action="store_true",
-                      help="Infer model")
-    parser.add_option("--importer", dest="importer",
-                      action="store_true",
-                      help="Run importer")
-    parser.add_option("--validate-model", dest="validate_model",
-                      action="store_true",
-                      help="Validate model")
 
     for arg, var, help_text, _, _ in pipes:
         option_name = "--" + arg
@@ -79,21 +76,6 @@ def run():
         if getattr(options, var):
             driver.run_pipe(queue, callback)
             return
-
-    if options.infer_model:
-        cb = ktbh.modelling.infer_model_callback
-        driver.run_pipe("download", cb)
-        return
-
-    if options.importer:
-        cb = ktbh.importer.import_ds_callback
-        driver.run_pipe("import", cb)
-        return
-
-    if options.validate_model:
-        cb = ktbh.modelling.validate_model_callback
-        driver.run_pipe("import", cb)
-        return
 
 if __name__ == '__main__':
     run()
