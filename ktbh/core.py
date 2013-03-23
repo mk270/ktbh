@@ -15,22 +15,28 @@ class KTBH(object):
             self.queues[q_name] = config.get(conf_section, conf_item)
         self.queues["error"] = "ktbh_errors"
 
+    def get_queue(self, queue_name):
+        return self.queues[queue_name]
+
+    def list_queues(self):
+        return self.queues.values()
+
     def delete_all_queues(self):
-        for q in self.queues.values():
+        for q in self.list_queues():
             self.router.delete_queue(q)
 
     def add_landing_page(self, url):
         payload = {
             "url": url
             }
-        self.router.hand_off_json(self.queues["out"], payload)
+        self.router.hand_off_json(self.get_queue("out"), payload)
 
     def wrap_callback(self, callback):
         def _callback(body):
-            return [ (self.queues[q], msg) for q, msg in callback(body) ]
+            return [ (self.get_queue(q), msg) for q, msg in callback(body) ]
         return _callback
 
     def run_pipe(self, input_queue, callback):
         self.router.route(callback=self.wrap_callback(callback),
-                          input_queue=self.queues[input_queue],
-                          error_queue=self.queues["error"])
+                          input_queue=self.get_queue(input_queue),
+                          error_queue=self.get_queue("error"))
