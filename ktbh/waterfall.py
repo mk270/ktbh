@@ -2,6 +2,7 @@ import sys
 import time
 import pika
 import json
+import traceback
 
 class PipeRouter(object):
     class NoConnection(Exception): pass
@@ -74,7 +75,8 @@ class PipeRouter(object):
                     "error": {
                         "type": str(sys.exc_info()[0]),
                         "err_str": str(sys.exc_info()[1]),
-                        "orig_body": body
+                        "orig_body": body,
+                        "traceback": traceback.format_exc()
                         }
                     }
                 results = [ (errors_queue, error_msg) ]
