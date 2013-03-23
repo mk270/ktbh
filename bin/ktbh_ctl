@@ -9,6 +9,7 @@ import ktbh.unscrapable
 import ktbh.csv_metadata
 import ktbh.modelling
 import ktbh.importer
+import ktbh.publisher_name
 
 from optparse import OptionParser
 import ConfigParser
