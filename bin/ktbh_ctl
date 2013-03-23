@@ -21,24 +21,24 @@ def get_config():
     config.read(config_file)
     return config
 
+pipes = [
+    ("examine-lps", "examine_lps", "Process landing pages",
+     "out", ktbh.landing_page.examine_landing_page_callback),
+    ("infer-dialect", "infer_dialect", "Infer CSV dialects",
+     "url", ktbh.csv_metadata.infer_dialects_callback),
+    ("infer-schema", "infer_schema", "Infer CSV schema",
+     "schema", ktbh.csv_metadata.infer_schema_callback)     
+]
+
 def run():
     config = get_config()
     parser = OptionParser()
 
     parser.add_option("--add-lp", dest="add_landing_page",
                       help="Add a landing page URL")
-    parser.add_option("--examine-lps", dest="examine_lps",
-                      action="store_true",
-                      help="Process landing pages")
     parser.add_option("--stash-unscrapables", dest="stash_unscrapables",
                       action="store_true",
                       help="Save unscrapable URLs")
-    parser.add_option("--infer-dialect", dest="infer_dialect",
-                      action="store_true",
-                      help="Infer CSV dialects")
-    parser.add_option("--infer-schema", dest="infer_schema",
-                      action="store_true",
-                      help="Infer CSV schema")
     parser.add_option("--reset-database", dest="reset_database",
                       action="store_true",
                       help="Reset databases")
@@ -52,6 +52,11 @@ def run():
                       action="store_true",
                       help="Validate model")
 
+    for arg, var, help_text, _, _ in pipes:
+        option_name = "--" + arg
+        parser.add_option(option_name, dest=var, default=False,
+                          action="store_true", help=help_text)
+
     options, args = parser.parse_args()
 
     driver = ktbh.core.KTBH(config)
@@ -64,26 +69,16 @@ def run():
         driver.add_landing_page(options.add_landing_page)
         return
 
-    if options.examine_lps:
-        cb = ktbh.landing_page.examine_landing_page_callback
-        driver.run_pipe("out", cb)
-        return
-
     if options.stash_unscrapables:
         database_name = config.get("database", "name")
         cb = ktbh.unscrapable.handle_unscrapable_callback(database_name)
         driver.run_pipe("broken", cb)
         return
 
-    if options.infer_dialect:
-        cb = ktbh.csv_metadata.infer_dialects_callback
-        driver.run_pipe("url", cb)
-        return
-
-    if options.infer_schema:
-        cb = ktbh.csv_metadata.infer_schema_callback
-        driver.run_pipe("schema", cb)
-        return
+    for _, var, _, queue, callback in pipes:
+        if getattr(options, var):
+            driver.run_pipe(queue, callback)
+            return
 
     if options.infer_model:
         cb = ktbh.modelling.infer_model_callback
