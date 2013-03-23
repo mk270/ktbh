@@ -25,7 +25,7 @@ def import_ds_callback(body):
     print loadds_args
     subprocess.check_call(loadds_args)
 
-    #os.unlink(filename)
+    os.unlink(filename)
 
     import sys
     sys.exit(1)
