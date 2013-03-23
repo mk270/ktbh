@@ -47,7 +47,7 @@ def infer_schema(data, _dialect):
     json_table_schema_types = map(get_type_of_column,
                                   types)
 
-    date_format = dict([ name, ty.format 
+    date_format = dict([ (name, ty.format) 
                          for name, ty in zip(field_names, types)
                          if get_type_of_column(ty) == "date" ])
 
