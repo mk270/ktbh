@@ -11,3 +11,4 @@ unicodecsv
 messytables
 slugify
 messytables-jts
+osvalidate==2012-05-29.01
