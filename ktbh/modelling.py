@@ -31,6 +31,24 @@ def make_model(amount_field, date_field, fields):
             "type": dim_type
             })
 
+    def compound_dimension(name, column_id):
+        return (name, 
+                {
+                "attributes": {
+                    "name": {
+                        "datatype": "id",
+                        "column": column_id
+                        },
+                    "label": {
+                        "column": column_id,
+                        "datatype": "string"
+                        }
+                    },
+                "type": "compound",
+                "description": column_id,
+                "label": column_id
+                })
+
     def as_os_type(t):
         if t in ["integer", "number"]:
             return "float"
@@ -43,7 +61,9 @@ def make_model(amount_field, date_field, fields):
         ]
 
     for f in fields:
-        dim = dimension(f["id"], f["label"], "attribute", as_os_type(f["type"]))
+        #dim = dimension(f["id"], f["label"], 
+        #                "attribute", as_os_type(f["type"]))
+        dim = compound_dimension(f["id"], f["label"])
         dimensions_list.append(dim)
 
     dimensions_list.append(("unique_rowid",
