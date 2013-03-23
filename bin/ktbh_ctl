@@ -33,7 +33,9 @@ pipes = [
     ("validate-model", "validate_model", "Validate model",
      "import", ktbh.modelling.validate_model_callback),
     ("importer", "importer", "Run importer",
-     "import", ktbh.importer.import_ds_callback)
+     "import", ktbh.importer.import_ds_callback),
+    ("validate-csv", "validate_csv", "Validate CSV file imports",
+     "try_import", ktbh.importer.validate_csv_callback)
 ]
 
 def run():
