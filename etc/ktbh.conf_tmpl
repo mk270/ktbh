@@ -6,6 +6,7 @@ url_queue: ktbh_file
 schema_queue: ktbh_schema
 download_queue: ktbh_download
 import_queue: ktbh_import
+try_import_queue: ktbh_try_import
 
 [database]
 name: ktbh

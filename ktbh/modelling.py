@@ -108,3 +108,33 @@ def infer_model_callback(body):
 
     args["model"] = model
     return [ ("import", args) ]
+
+def validate_model_callback(body):
+    import tempfile
+    import os
+    import subprocess
+
+    args = json.loads(body)
+    model = args["model"]
+
+    try:
+        fn = tempfile.mktemp()
+
+        with file(fn, 'w') as f:
+            json.dump(model, f, indent=2)
+
+        cmd = [
+            "osvalidate",
+            "model",
+            fn
+            ]
+
+        output = subprocess.check_output(cmd)
+
+        args["model_validated"] = True
+
+        return [ ( "try_import", args ) ]
+        
+    finally:
+        os.unlink(fn)
+    

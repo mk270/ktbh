@@ -48,6 +48,9 @@ def run():
     parser.add_option("--importer", dest="importer",
                       action="store_true",
                       help="Run importer")
+    parser.add_option("--validate-model", dest="validate_model",
+                      action="store_true",
+                      help="Validate model")
 
     options, args = parser.parse_args()
 
@@ -89,6 +92,11 @@ def run():
 
     if options.importer:
         cb = ktbh.importer.import_ds_callback
+        driver.run_pipe("import", cb)
+        return
+
+    if options.validate_model:
+        cb = ktbh.modelling.validate_model_callback
         driver.run_pipe("import", cb)
         return
 

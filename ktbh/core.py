@@ -11,7 +11,8 @@ class KTBH(object):
             ("url", "main", "url_queue"),
             ("schema", "main", "schema_queue"),
             ("download", "main", "download_queue"),
-            ("import", "main", "import_queue")
+            ("import", "main", "import_queue"),
+            ("try_import", "main", "try_import_queue")
             ]:
             self.queues[q_name] = config.get(conf_section, conf_item)
         self.queues["error"] = "ktbh_errors"
