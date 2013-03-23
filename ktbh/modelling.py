@@ -37,11 +37,13 @@ def make_model(amount_field, date_field, fields):
                 "attributes": {
                     "name": {
                         "datatype": "id",
-                        "column": column_id
+                        "column": column_id,
+                        "default_value": "missing"
                         },
                     "label": {
                         "column": column_id,
-                        "datatype": "string"
+                        "datatype": "string",
+                        "default_value": "Missing"
                         }
                     },
                 "type": "compound",
