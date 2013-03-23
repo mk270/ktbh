@@ -47,13 +47,20 @@ def infer_schema(data, _dialect):
     json_table_schema_types = map(get_type_of_column,
                                   types)
 
+    date_format = dict([ (name, ty.format) 
+                         for name, ty in zip(field_names, types)
+                         if get_type_of_column(ty) == "date" ])
+
     slugs = [ slugify.slugify(i) for i in field_names ]
 
     metadata = zip(slugs, field_names, json_table_schema_types)
 
     sch = jsontableschema.JSONTableSchema()
+
     for field_id, label, field_type in metadata:
         sch.add_field(field_id=field_id,
                       label=label,
                       field_type=field_type)
-    return sch.as_json()
+
+    schema = sch.as_json()
+    return (schema, date_format)
