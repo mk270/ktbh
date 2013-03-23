@@ -4,6 +4,7 @@ import urllib
 import tempfile
 
 base_url = 'http://localhost:1237/hack_csv/'
+loadds = "/home/mk270/bin/loadds"
 
 def import_ds_callback(body):
     args = json.loads(body)
@@ -29,7 +30,7 @@ def import_ds_callback(body):
         }
     csv_url = base_url + '?' + urllib.urlencode(url_args)
 
-    loadds_args = ["/home/mk270/bin/loadds",
+    loadds_args = [loadds,
                    dataset_name,
                    model_url,
                    csv_url]
