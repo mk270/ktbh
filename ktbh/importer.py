@@ -82,4 +82,4 @@ def validate_csv_callback(body):
     os.unlink(csv_file)
 
     args["csv_validated"] = True
-    return [ ("ready"), args ]
+    return [ ("ready", args) ]
