@@ -8,6 +8,8 @@ import jsontableschema
 from messytables.types import *
 from messytables_jts import celltype_as_string
 
+class UnnamedFieldException(Exception): pass
+
 def censor(dialect):
     tmp = dict(dialect)
     censored = [
@@ -37,6 +39,9 @@ def infer_schema(data, _dialect):
         
     field_names = d.next()
     f.seek(0)
+
+    if "" in field_names:
+        raise UnnamedFieldException
 
     dialect = censor(_dialect)
     
