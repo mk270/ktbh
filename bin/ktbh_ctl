@@ -24,8 +24,10 @@ def get_config():
 pipes = [
     ("examine-lps", "examine_lps", "Process landing pages",
      "out", ktbh.landing_page.examine_landing_page_callback),
+    ("get-pubname", "get_pubname", "Get publisher's name",
+     "url", ktbh.publisher_name.infer_publisher_code_callback),
     ("infer-dialect", "infer_dialect", "Infer CSV dialects",
-     "url", ktbh.csv_metadata.infer_dialects_callback),
+     "pubnamed", ktbh.csv_metadata.infer_dialects_callback),
     ("infer-schema", "infer_schema", "Infer CSV schema",
      "schema", ktbh.csv_metadata.infer_schema_callback),
     ("infer-model", "infer_model", "Infer model",
