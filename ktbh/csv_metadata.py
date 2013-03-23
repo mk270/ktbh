@@ -19,9 +19,11 @@ def infer_dialects_callback(body):
             
     d = unicodecsv.Sniffer().sniff(data, delimiters=['\t', ','])
     dialect = csvddf.CSVDDF(dialect=d)
-    return [ ("schema", { "url": url,
-                          "csvddf": dialect.as_dict()
-                          }) ]
+
+    args["url"] = url
+    args["csvddf"] = dialect.as_dict()
+    
+    return [ ("schema", args) ]
 
 def infer_schema_callback(body):
     args = json.loads(body)
