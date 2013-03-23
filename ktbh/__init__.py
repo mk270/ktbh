@@ -1,2 +1,2 @@
 __all__ = [ 'core', 'csv_metadata', 'unscrapable', 'landing_page',
-            'modelling', 'importer' ]
+            'modelling', 'importer', 'publisher_name' ]
