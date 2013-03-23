@@ -28,10 +28,10 @@ def infer_schema_callback(body):
 
     data = preview(args["url"])
 
-    schema, date_formats = schema.infer_schema(data, 
-                                               args["csvddf"]["dialect"])
-
-    args["schema"] = json.loads(schema)
+    sch, date_formats = schema.infer_schema(data, 
+                                            args["csvddf"]["dialect"])
+    
+    args["schema"] = json.loads(sch)
     args["date_format"] = date_formats
 
     return [ ("download", args) ]

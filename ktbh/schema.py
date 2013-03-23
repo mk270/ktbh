@@ -62,5 +62,5 @@ def infer_schema(data, _dialect):
                       label=label,
                       field_type=field_type)
 
-    schema = sch.as_json()
-    return (schema, date_format)
+    sch = sch.as_json()
+    return (sch, date_format)
