@@ -78,4 +78,4 @@ def examine_landing_page_callback(body):
             return results
     except:
         pass
-    return [ ("broken", {"body": body}) ]
+    return [ ("broken", args) ]
