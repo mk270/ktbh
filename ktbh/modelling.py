@@ -152,7 +152,7 @@ def infer_supplier_callback(body):
     cols = dict([ (get_col(v), k) for k, v in model["mapping"].iteritems() ])
 
     if "Supplier Name" in cols:
-        orig_key = cols["Body Name"]
+        orig_key = cols["Supplier Name"]
         args["model"]["mapping"]["to"] = model["mapping"][orig_key]
         del args["model"]["mapping"][orig_key]
 
