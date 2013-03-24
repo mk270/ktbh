@@ -116,6 +116,26 @@ def infer_model_callback(body):
         )
 
     args["model"] = model
+    return [ ("modelled", args) ]
+
+def infer_spender_callback(body):
+    args = json.loads(body)
+
+    model = args["model"]
+
+    def get_col(dimension):
+        if "column" in dimension:
+            return dimension["column"]
+        else:
+            return dimension["attributes"]["label"]["column"]
+
+    cols = dict([ (get_col(v), k) for k, v in model["mapping"].iteritems() ])
+
+    if "Body Name" in cols:
+        orig_key = cols["Body Name"]
+        args["model"]["mapping"]["from"] = model["mapping"][orig_key]
+        del args["model"]["mapping"][orig_key]
+
     return [ ("import", args) ]
 
 def infer_date_range_callback(body):

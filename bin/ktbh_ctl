@@ -33,6 +33,8 @@ pipes = [
      "schema", ktbh.csv_metadata.infer_schema_callback),
     ("infer-model", "infer_model", "Infer model",
      "download", ktbh.modelling.infer_model_callback),
+    ("infer-spender", "infer_spender", "Infer spender column",
+     "modelled", ktbh.modelling.infer_spender_callback),
     ("validate-model", "validate_model", "Validate model",
      "import", ktbh.modelling.validate_model_callback),
     ("importer", "importer", "Run importer",
