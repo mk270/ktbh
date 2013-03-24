@@ -48,9 +48,6 @@ def import_ds_callback(body):
 
     os.unlink(model_filename)
 
-    import sys
-    sys.exit(1)
-
     return []
 
 def validate_csv_callback(body):
