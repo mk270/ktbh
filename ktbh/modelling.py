@@ -9,9 +9,10 @@ def timestamp():
 
 def make_model(pubname, pubtitle, amount_field, date_field, fields):
     currency = "GBP"
-    dataset_name = pubname + "-" + timestamp()
+    ts = timestamp()
+    dataset_name = pubname + "-" + ts
     description = pubtitle
-    label = "Dataset label"
+    label = pubtitle + "-" + ts
 
     dataset = {
         "description": description,
