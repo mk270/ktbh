@@ -5,12 +5,21 @@ import tempfile
 import requests
 import subprocess
 import os
+import ConfigParser
 
-base_url = 'http://localhost:1237/hack_csv/'
-loadds = "/home/mk270/bin/loadds"
+def get_config():
+    config_file = os.path.join(os.path.dirname(__file__), 
+                               os.path.pardir,
+                               "etc", "ktbh.conf")
+    config = ConfigParser.ConfigParser()
+    config.read(config_file)
+    return config
 
 def setup_import(model, url, date_formats):
     dataset_name = model["dataset"]["name"]
+
+    cfg = get_config()
+    base_url = cfg.get("proxy", "url")
 
     filename = tempfile.mktemp()
     with file(filename, 'w') as f:
@@ -30,6 +39,9 @@ def setup_import(model, url, date_formats):
 
 def import_ds_callback(body):
     args = json.loads(body)
+
+    cfg = get_config()
+    loadds = cfg.get("openspending", "load_dataset_script")
 
     model = args["model"]
     url = args["url"]

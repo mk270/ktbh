@@ -4,3 +4,9 @@ queue_prefix: ktbh_
 
 [database]
 name: ktbh
+
+[proxy]
+url: http://localhost:9987/hack_csv/
+
+[openspending]
+load_dataset_script: /usr/local/bin/loadds
