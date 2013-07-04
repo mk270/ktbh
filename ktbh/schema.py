@@ -1,3 +1,11 @@
+
+#  KTBH, a framework for pipelined data handling, by Martin Keegan
+#
+#  Copyright (C) 2012  Martin Keegan
+#
+#  This programme is free software; you may redistribute and/or modify
+#  it under the terms of the GNU Affero General Public License
+
 import unicodecsv
 from cStringIO import StringIO
 import messytables

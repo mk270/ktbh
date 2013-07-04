@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+#  KTBH, a framework for pipelined data handling, by Martin Keegan
+#
+#  Copyright (C) 2012  Martin Keegan
+#
+#  This programme is free software; you may redistribute and/or modify
+#  it under the terms of the GNU Affero General Public License
+
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir))
